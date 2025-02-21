@@ -1,19 +1,20 @@
 modules:
   jira:issuePanel:
     - key: star-wars-panel
-      resource: main
+      resource: star-wars-panel-build
       resolver:
         function: resolver
       viewportSize: medium
       title: Star Wars Character
       icon: https://icons.veryicon.com/png/Movie%20%26%20TV/Free%20Star%20Wars/Darth%20Vader.png
+      # Panel showing character details from Star Wars API
 
   function:
     - key: resolver
       handler: index.handler
 
 resources:
-  - key: main
+  - key: star-wars-panel-build
     path: static/star-wars-panel/build
 
 permissions:

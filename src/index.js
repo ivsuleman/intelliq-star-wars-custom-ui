@@ -3,10 +3,11 @@ import api, { route } from "@forge/api"
 
 const resolver = new Resolver()
 
-// Fetch Jira labels from the issue
+// fetch Jira labels from the issue
 resolver.define("fetchLabels", async (req) => {
   const key = req.context.extension.issue.key
 
+  // Request Jira API to fetch labels for the issue
   try {
     const res = await api
       .asUser()
@@ -17,31 +18,21 @@ resolver.define("fetchLabels", async (req) => {
 
     if (!labels) {
       console.warn(`${key}: Failed to find labels`)
-      return []
+      return [] // Return empty array if an error occurs
     }
 
-    return labels // Return the list of labels
+    return labels // Return labels if found
   } catch (error) {
     console.error(`Error fetching labels for issue ${key}:`, error)
-    return [] // Return empty array if there's an error
+    return [] // Return empty array if an error occurs
   }
 })
 
-// A simple resolver function to return a text
-resolver.define("getText", (req) => {
-  console.log(req)
-  return "Hello, world!"
-})
-
-// a resolver function to fetch Star Wars character details
+// function to fetch Star Wars character details from SWAPI
 resolver.define("fetchSwCharacter", async () => {
   try {
-    // Make the API request to SWAPI
-    const response = await api.fetch("https://swapi.dev/api/people/1/") // Luke Skywalker endpoint
-
-    // Log the status and headers to check the response
-    console.log("Response Status:", response.status)
-    console.log("Response Headers:", response.headers)
+    // Make the API request to fetch character data from SWAPI (Luke Skywalker)
+    const response = await api.fetch("https://swapi.dev/api/people/1/")
 
     // Check if the response was successful
     if (!response.ok) {
@@ -52,23 +43,18 @@ resolver.define("fetchSwCharacter", async () => {
 
     // Parse the response body
     const characterData = await response.json()
-    console.log("Character Data:", characterData) // Log the character data for debugging
-
     return characterData
-
-    // You can process the character data, e.g., display or create Jira ticket
   } catch (error) {
-    console.error("Error fetching data:", error)
+    throw new Error("Jira API Error: ", error)
   }
 })
 
-// Create Jira ticket resolver (with correct ADF format for description)
+// function to create a Jira ticket based on the payload passed in
 resolver.define("createJiraTicket", async ({ payload }) => {
-  const { character } = payload;
+  const { character } = payload
 
   try {
-    console.log("🚀 Creating Jira issue with character:", character);
-
+    // Prepare the request to create a Jira ticket using the Jira API
     const response = await api.asUser().requestJira(route`/rest/api/3/issue`, {
       method: "POST",
       headers: {
@@ -77,7 +63,7 @@ resolver.define("createJiraTicket", async ({ payload }) => {
       },
       body: JSON.stringify({
         fields: {
-          project: { key: "SWK" }, // Change this to your Jira project key
+          project: { key: "SWK" }, // The Star Wars kanban board
           summary: `Character: ${character.name}`,
           description: {
             type: "doc",
@@ -100,21 +86,20 @@ resolver.define("createJiraTicket", async ({ payload }) => {
           issuetype: { name: "Task" },
         },
       }),
-    });
+    })
 
-    const data = await response.json();
-    console.log("🚀 Jira Issue Created:", data);
+    const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(`Jira API Error: ${JSON.stringify(data)}`);
+      // Return error if ticket was not created successfully
+      throw new Error(`Jira API Error: ${JSON.stringify(data)}`)
     }
 
-    return { ticketKey: data };
+    return { ticketKey: data } // Return successfully created ticket data
   } catch (error) {
-    console.error("🚀 Error Creating Jira Ticket:", error);
-    return { error: "Failed to create Jira ticket." };
+    return { error: "Failed to create Jira ticket." }
   }
-});
+})
 
 // Export the resolver handler to handle all resolver functions
 export const handler = resolver.getDefinitions()

@@ -1,0 +1,96 @@
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f4f7f6;
+  color: #333;
+  line-height: 1.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+}
+
+h2 {
+  color: #1e1e1e;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+/* Container Styles */
+.container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Paragraph Styles */
+p {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+/* Button Styles */
+button {
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #1565c0;
+}
+
+/* Success Message Styles */
+.success-message {
+  color: #388e3c;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+
+.success-message a {
+  color: #388e3c;
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.success-message a:hover {
+  text-decoration: underline;
+}
+
+.success-message p {
+  font-size: 0.9rem;
+  color: #757575;
+  margin-top: 5px;
+}
+
+/* Error Message Styles */
+.error-message {
+  color: #e53935;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+
+/* Loading Styles */
+.loading {
+  font-size: 1.2rem;
+  color: #1976d2;
+  font-weight: bold;
+}

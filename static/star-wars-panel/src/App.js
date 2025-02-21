@@ -1,56 +1,61 @@
 import React, { useEffect, useState } from "react"
-import { events, invoke } from "@forge/bridge"
+import { invoke } from "@forge/bridge"
+import "./App.css"
 
 function App() {
-  // const [data, setData] = useState(null)
-  const [character, setCharacter] = useState(null)
-  const [error, setError] = useState(null)
-  const [successMessage, setSuccessMessage] = useState("") // ✅ Declare successMessage state
-
-  // useEffect(() => {
-  //   invoke("getText", { example: "my-invoke-variable" }).then(setData)
-  // }, [])
+  const [character, setCharacter] = useState(null) //Star Wars character data following SWAPI API fetch
+  const [error, setError] = useState(null) // errors from API calls
+  const [successMessage, setSuccessMessage] = useState("") // Success message state following Jira API ticket creation
+  const [loading, setLoading] = useState(true) // Loading state to handle the UI
 
   useEffect(() => {
-    console.log(">>>>>>>>>>>>>>>>>>>>>>.. useEffect is running")
+    // Get Star Wars character details
     const fetchCharacter = async () => {
+      setLoading(true) // Set loading to true before fetching
       try {
-        if (!invoke) {
-          throw new Error("🚀 Forge invoke is not defined!")
-        }
-        console.log("🚀 Fetching character from resolver...")
-
         const data = await invoke("fetchSwCharacter")
-
-        console.log("🚀 IRFAN-LOG - Received Data:", data)
 
         if (!data || data.error) {
           throw new Error("No valid character data received")
         }
 
         setCharacter(data)
+        setError(null) // Reset any previous errors
       } catch (err) {
         setError("Failed to fetch character details.")
-        console.error("🚀 Error:", err)
+      } finally {
+        setLoading(false) // Set loading to false after the request
       }
     }
 
     fetchCharacter()
   }, [])
 
-  // ✅ Function to create a Jira ticket
+  // Create Jira ticket function
   const createJiraTicket = async () => {
     try {
       const response = await invoke("createJiraTicket", { character })
-      console.log("Ticket Response:", response)
-      console.log("Ticket ID:", response.ticketKey.id)
 
       if (response && response.ticketKey.id) {
-        console.log(
-          "🚀 IRFAN-LOG - App.js:48 - createJiraTicket - response.id:",
-          response.ticketKey.id
+        const ticketUrl = `https://irfan-suleman.atlassian.net/browse/${response.ticketKey.key}` // Replace 'your-domain' with your Jira instance domain
+
+        setSuccessMessage(
+          <>
+            ✅ Ticket Created:{" "}
+            <a
+              href={ticketUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "blue", textDecoration: "underline" }}
+            >
+              {response.ticketKey.key}
+            </a>
+            <p style={{ color: "gray" }}>
+              If the link doesn't open automatically, please click the link
+              above to view your Jira ticket.
+            </p>
+          </>
         )
-        setSuccessMessage(`✅ Ticket Created: ${response.ticketKey.key}`) // ✅ Update success message
       } else {
         setError("Failed to create Jira ticket.")
       }
@@ -60,11 +65,14 @@ function App() {
     }
   }
 
-  if (error) return <div>{error}</div>
-  if (!character) return <div>Loading...</div>
+  // Render loading, error, or the character details
+  if (loading) return <div className="loading">Loading...</div>
+  if (error) return <div className="error-message">{error}</div>
+  if (!character)
+    return <div className="error-message">No character data available</div>
 
   return (
-    <div>
+    <div className="container">
       <h2>Star Wars Character</h2>
       <p>
         <strong>Name:</strong> {character.name}
@@ -82,11 +90,11 @@ function App() {
         <strong>Skin Colour:</strong> {character.skin_color}
       </p>
 
-      {/* ✅ Button to create a Jira ticket */}
+      {/* Button to create Jira ticket */}
       <button onClick={createJiraTicket}>Create Jira Ticket</button>
 
-      {/* ✅ Show success message if available */}
-      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
+      {/* Show success message if available */}
+      {successMessage && <p className="success-message">{successMessage}</p>}
     </div>
   )
 }
