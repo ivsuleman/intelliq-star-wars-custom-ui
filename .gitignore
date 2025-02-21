@@ -75,3 +75,6 @@ DerivedDataCache/*
 
 # Mac files
 *.DS_Store
+
+# node modules folder
+**/node_modules
